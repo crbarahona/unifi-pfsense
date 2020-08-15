@@ -4,7 +4,7 @@
 # Installs the Uni-Fi controller software on a FreeBSD machine (presumably running pfSense).
 
 # The latest version of UniFi:
-UNIFI_SOFTWARE_URL="https://dl.ubnt.com/unifi/5.6.29/UniFi.unix.zip"
+UNIFI_SOFTWARE_URL="http://dl.ubnt.com/unifi/5.13.32/UniFi.unix.zip"
 
 # The rc script associated with this branch or fork:
 RC_SCRIPT_URL="https://raw.githubusercontent.com/crbarahona/unifi-pfsense/master/rc.d/unifi.sh"
@@ -79,6 +79,21 @@ echo -n "Mounting new filesystems..."
 /sbin/mount -a
 echo " done."
 
+
+#remove mongodb34 - discontinued
+echo "Removing packages discontinued..."
+if [ `pkg info | grep -c mongodb-` -eq 1 ]; then
+	env ASSUME_ALWAYS_YES=YES /usr/sbin/pkg delete mongodb
+fi
+
+if [ `pkg info | grep -c mongodb34-` -eq 1 ]; then
+	env ASSUME_ALWAYS_YES=YES /usr/sbin/pkg delete mongodb34
+fi
+echo " done."
+
+	
+
+
 # Install mongodb, OpenJDK, and unzip (required to unpack Ubiquiti's download):
 # -F skips a package if it's already installed, without throwing an error.
 echo "Installing required packages..."
@@ -90,23 +105,36 @@ fetch ${FREEBSD_PACKAGE_LIST_URL}
 tar vfx packagesite.txz
 
 AddPkg () {
-	pkgname=$1
-	pkginfo=`grep "\"name\":\"$pkgname\"" packagesite.yaml`
-	pkgvers=`echo $pkginfo | pcregrep -o1 '"version":"(.*?)"' | head -1`
-	env ASSUME_ALWAYS_YES=YES /usr/sbin/pkg add -f ${FREEBSD_PACKAGE_URL}${pkgname}-${pkgvers}.txz
+ 	pkgname=$1
+ 	pkginfo=`grep "\"name\":\"$pkgname\"" packagesite.yaml`
+ 	pkgvers=`echo $pkginfo | pcregrep -o1 '"version":"(.*?)"' | head -1`
+
+	# compare version for update/install
+ 	if [ `pkg info | grep -c $pkgname-$pkgvers` -eq 1 ]; then
+			echo "Package $pkgname-$pkgvers already installed."
+		else
+			env ASSUME_ALWAYS_YES=YES /usr/sbin/pkg add -f ${FREEBSD_PACKAGE_URL}${pkgname}-${pkgvers}.txz
+
+			# if update openjdk8 then force detele snappyjava to reinstall for new version of openjdk
+			if [ "$pkgname" == "openjdk8" ]; then
+				env ASSUME_ALWAYS_YES=YES /usr/sbin/pkg delete snappyjava
+			fi
+		fi
 }
 
 AddPkg snappy
-AddPkg python2
+AddPkg cyrus-sasl
+AddPkg xorgproto
+AddPkg python37
 AddPkg v8
-AddPkg mongodb
+AddPkg icu
+AddPkg boost-libs
+AddPkg mongodb36
 AddPkg unzip
 AddPkg pcre
 AddPkg alsa-lib
 AddPkg freetype2
 AddPkg fontconfig
-AddPkg xproto
-AddPkg kbproto
 AddPkg libXdmcp
 AddPkg libpthread-stubs
 AddPkg libXau
@@ -114,9 +142,6 @@ AddPkg libxcb
 AddPkg libICE
 AddPkg libSM
 AddPkg java-zoneinfo
-AddPkg fixesproto
-AddPkg xextproto
-AddPkg inputproto
 AddPkg libX11
 AddPkg libXfixes
 AddPkg libXext
@@ -124,12 +149,10 @@ AddPkg libXi
 AddPkg libXt
 AddPkg libfontenc
 AddPkg mkfontscale
-AddPkg mkfontdir
 AddPkg dejavu
-AddPkg recordproto
 AddPkg libXtst
-AddPkg renderproto
 AddPkg libXrender
+AddPkg libinotify
 AddPkg javavmwrapper
 AddPkg giflib
 AddPkg openjdk8
