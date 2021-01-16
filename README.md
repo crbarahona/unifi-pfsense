@@ -63,12 +63,12 @@ To install the controller software and the rc script:
 2. Run this one-line command, which downloads the install script from Github and executes it with sh:
 
   ```
-    fetch -o - https://git.io/j7Jy | sh -s
+    fetch -o - https://raw.githubusercontent.com/crbarahona/unifi-pfsense/master/install-unifi/install-unifi.sh | sh -s
   ```
 
 The install script will install dependencies, download the UniFi controller software, make some adjustments, and start the UniFi controller.
 
-The git.io link above should point to `https://raw.githubusercontent.com/gozoinks/unifi-pfsense/master/install-unifi/install-unifi.sh`
+The git.io link above should point to `https://raw.githubusercontent.com/crbarahona/unifi-pfsense/master/install-unifi/install-unifi.sh`
 
 
 Starting and Stopping
@@ -197,7 +197,7 @@ This project itself is licensed according to the two-clause BSD license.
 
 The UniFi Controller software is licensed as-is with no warranty, according to the README included with the software.
 
-[Ubiquiti has indicated via email](https://github.com/gozoinks/unifi-pfsense/wiki/Tacit-Approval) that acceptance of the EULA on the web site is not required before downloading the software.
+[Ubiquiti has indicated via email](https://github.com/crbarahona/unifi-pfsense/wiki/Tacit-Approval) that acceptance of the EULA on the web site is not required before downloading the software.
 
 
 Resources
